@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Pandas Operations</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --info-color: #9b59b6;
+            --text-color: #333;
+            --comment-color: #1e5128;  /* Dark green color for comments */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            position: relative;
+            min-height: 100vh;
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url(pandas2.jpeg);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            opacity: 0.85;
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        header {
+            background-color: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .background-upload {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .background-upload label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+        
+        .background-upload label i {
+            margin-right: 5px;
+        }
+        
+        .background-upload input {
+            display: none;
+        }
+        
+        .slide-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin: 30px 0;
+            display: none;
+            backdrop-filter: blur(3px);
+        }
+        
+        .slide-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-title {
+            color: var(--secondary-color);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+        
+        .slide-content {
+            font-size: 1.1rem;
+        }
+        
+        .slide-content h3 {
+            color: var(--primary-color);
+            margin: 20px 0 10px;
+            font-size: 1.5rem;
+        }
+        
+        .slide-content p {
+            margin-bottom: 15px;
+        }
+        
+        .slide-content ul, .slide-content ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .slide-content li {
+            margin-bottom: 8px;
+        }
+        
+        .code-block {
+            background-color: rgba(248, 249, 250, 0.95);
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            border-radius: 4px;
+            white-space: pre;
+        }
+        
+        .code-block .comment {
+            color: var(--comment-color);
+            font-style: italic;
+        }
+        
+        .output-block {
+            background-color: rgba(45, 45, 45, 0.95);
+            border-left: 4px solid var(--info-color);
+            padding: 15px;
+            margin: 5px 0 15px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            border-radius: 4px;
+            color: #e0e0e0;
+        }
+        
+        .output-label {
+            font-weight: bold;
+            color: #bb86fc;
+            margin-bottom: 5px;
+        }
+        
+        .note {
+            background-color: rgba(255, 248, 225, 0.95);
+            border-left: 4px solid var(--warning-color);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .tip {
+            background-color: rgba(232, 245, 233, 0.95);
+            border-left: 4px solid var(--success-color);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .nav-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .nav-button i {
+            margin-right: 8px;
+        }
+        
+        .index-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .index-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(3px);
+        }
+        
+        .index-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .index-card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .index-card p {
+            color: #555;
+            font-size: 0.9rem;
+        }
+        
+        .index-card .icon {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .floating-nav {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .floating-nav button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-nav button:hover {
+            background-color: #2980b9;
+            transform: scale(1.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .slide-container {
+                padding: 20px;
+            }
+            
+            .slide-title {
+                font-size: 1.7rem;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .floating-nav {
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            .background-upload {
+                top: 10px;
+                right: 10px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Upload Button -->
+    <div class="background-upload">
+        <label for="bg-image-upload">
+            <i class="fas fa-image"></i> Change Background
+        </label>
+        <input type="file" id="bg-image-upload" accept="image/*">
+    </div>
+    
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-database"></i> Advanced Pandas Operations</h1>
+            <p>Master data manipulation with advanced Pandas techniques</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Index Slide -->
+        <div id="index" class="slide-container active">
+            <h2 class="slide-title"><i class="fas fa-list"></i> Tutorial Index</h2>
+            <div class="slide-content">
+                <p>Welcome to the Advanced Pandas Operations tutorial! Select a topic to begin learning:</p>
+                
+                <div class="index-container">
+                    <div class="index-card" onclick="showSlide('adding-columns')">
+                        <div class="icon"><i class="fas fa-plus-circle"></i></div>
+                        <h3>Adding Columns</h3>
+                        <p>How to add columns to your DataFrame</p>
+                    </div>
+                    
+                    <div class="index-card" onclick="showSlide('updating-values')">
+                        <div class="icon"><i class="fas fa-edit"></i></div>
+                        <h3>Updating Values</h3>
+                        <p>How to update existing values in DataFrames</p>
+                    </div>
+                    
+                    <div class="index-card" onclick="showSlide('removing-columns')">
+                        <div class="icon"><i class="fas fa-minus-circle"></i></div>
+                        <h3>Removing Columns</h3>
+                        <p>How to remove columns from DataFrames</p>
+                    </div>
+                    
+                    <div class="index-card" onclick="showSlide('missing-values')">
+                        <div class="icon"><i class="fas fa-question-circle"></i></div>
+                        <h3>Handling Missing Values</h3>
+                        <p>Detecting and handling missing data</p>
+                    </div>
+                    
+                    <div class="index-card" onclick="showSlide('sorting-aggregation')">
+                        <div class="icon"><i class="fas fa-sort"></i></div>
+                        <h3>Sorting & Aggregation</h3>
+                        <p>Organizing and summarizing data</p>
+                    </div>
+                    
+                    <div class="index-card" onclick="showSlide('grouping')">
+                        <div class="icon"><i class="fas fa-object-group"></i></div>
+                        <h3>Grouping Data</h3>
+                        <p>Splitting data into groups for analysis</p>
+                    </div>
+                    
+                    <div class="index-card" onclick="showSlide('merging-joining')">
+                        <div class="icon"><i class="fas fa-code-branch"></i></div>
+                        <h3>Merging & Joining</h3>
+                        <p>Combining DataFrames using different join types</p>
+                    </div>
+                    
+                    <div class="index-card" onclick="showSlide('concatenation')">
+                        <div class="icon"><i class="fas fa-link"></i></div>
+                        <h3>Concatenation</h3>
+                        <p>Joining DataFrames vertically or horizontally</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Adding Columns Slide -->
+        <div id="adding-columns" class="slide-container">
+            <h2 class="slide-title"><i class="fas fa-plus-circle"></i> Adding Columns to a DataFrame</h2>
+            <div class="slide-content">
+                <p>There are two main methods to add columns to a DataFrame in Pandas:</p>
+                
+                <h3>1. Direct Method</h3>
+                <p>Add a column without specifying a position. The column will be added at the end.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', 'fighting', 'relation', 'sckills'],
+    "salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Adding a column using direct method</span>
+df["bonus"] = df['salary'] * 0.1
+print("DataFrame with bonus column:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    name  department  salary<br>
+                    0        Ram        tech   80000<br>
+                    1      shyam   technical   70000<br>
+                    2   lakshman  technologya   40000<br>
+                    3     sheeta    fighting   30000<br>
+                    4     bharat    relation   49000<br>
+                    5  shatrughan     sckills   91000<br><br>
+                    
+                    DataFrame with bonus column:<br>
+                    name  department  salary   bonus<br>
+                    0        Ram        tech   80000  8000.0<br>
+                    1      shyam   technical   70000  7000.0<br>
+                    2   lakshman  technologya   40000  4000.0<br>
+                    3     sheeta    fighting   30000  3000.0<br>
+                    4     bharat    relation   49000  4900.0<br>
+                    5  shatrughan     sckills   91000  9100.0
+                </div>
+                
+                <h3>2. Insert Method</h3>
+                <p>Add a column at a specific position using the <code>insert()</code> method.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', 'fighting', 'relation', 'sckills'],
+    "salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Adding a column using insert method</span>
+df.insert(2, "Age", [23, 45, 34, 25, 36, 29])
+print("DataFrame with Age column:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    name  department  salary<br>
+                    0        Ram        tech   80000<br>
+                    1      shyam   technical   70000<br>
+                    2   lakshman  technologya   40000<br>
+                    3     sheeta    fighting   30000<br>
+                    4     bharat    relation   49000<br>
+                    5  shatrughan     sckills   91000<br><br>
+                    
+                    DataFrame with Age column:<br>
+                    name  department  Age  salary<br>
+                    0        Ram        tech   23   80000<br>
+                    1      shyam   technical   45   70000<br>
+                    2   lakshman  technologya   34   40000<br>
+                    3     sheeta    fighting   25   30000<br>
+                    4     bharat    relation   36   49000<br>
+                    5  shatrughan     sckills   29   91000
+                </div>
+                
+                <div class="tip">
+                    <strong>Tip:</strong> The <code>insert()</code> method is useful when you need to control the position of the new column in the DataFrame.
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-button" onclick="showSlide('index')">
+                    <i class="fas fa-home"></i> Index
+                </button>
+                <button class="nav-button" onclick="showSlide('updating-values')">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Updating Values Slide -->
+        <div id="updating-values" class="slide-container">
+            <h2 class="slide-title"><i class="fas fa-edit"></i> Updating Values in a DataFrame</h2>
+            <div class="slide-content">
+                <p>Pandas provides several ways to update values in a DataFrame. The most common method is using <code>.loc[]</code> to access specific locations.</p>
+                
+                <h3>Updating a Single Value</h3>
+                <p>Use <code>.loc[row_index, column_name]</code> to update a specific value.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', 'fighting', 'relation', 'sckills'],
+    "salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Updating a single value</span>
+df.loc[3, "salary"] = 35000
+print("DataFrame after updating salary at index 3:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    name  department  salary<br>
+                    0        Ram        tech   80000<br>
+                    1      shyam   technical   70000<br>
+                    2   lakshman  technologya   40000<br>
+                    3     sheeta    fighting   30000<br>
+                    4     bharat    relation   49000<br>
+                    5  shatrughan     sckills   91000<br><br>
+                    
+                    DataFrame after updating salary at index 3:<br>
+                    name  department  salary<br>
+                    0        Ram        tech   80000<br>
+                    1      shyam   technical   70000<br>
+                    2   lakshman  technologya   40000<br>
+                    3     sheeta    fighting   35000<br>
+                    4     bharat    relation   49000<br>
+                    5  shatrughan     sckills   91000
+                </div>
+                
+                <h3>Updating Multiple Values</h3>
+                <p>Use <code>.loc[:, column_name]</code> to update all values in a column.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', 'fighting', 'relation', 'sckills'],
+    "salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Updating all values in a column</span>
+df.loc[:, "salary"] = df["salary"] + 1000
+print("DataFrame after increasing all salaries by 1000:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    name  department  salary<br>
+                    0        Ram        tech   80000<br>
+                    1      shyam   technical   70000<br>
+                    2   lakshman  technologya   40000<br>
+                    3     sheeta    fighting   30000<br>
+                    4     bharat    relation   49000<br>
+                    5  shatrughan     sckills   91000<br><br>
+                    
+                    DataFrame after increasing all salaries by 1000:<br>
+                    name  department  salary<br>
+                    0        Ram        tech   81000<br>
+                    1      shyam   technical   71000<br>
+                    2   lakshman  technologya   41000<br>
+                    3     sheeta    fighting   31000<br>
+                    4     bharat    relation   50000<br>
+                    5  shatrughan     sckills   92000
+                </div>
+                
+                <div class="note">
+                    <strong>Note:</strong> The <code>.loc[]</code> indexer is used to access a group of rows and columns by label(s) or a boolean array.
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-button" onclick="showSlide('adding-columns')">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="nav-button" onclick="showSlide('removing-columns')">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Removing Columns Slide -->
+        <div id="removing-columns" class="slide-container">
+            <h2 class="slide-title"><i class="fas fa-minus-circle"></i> Removing Columns from a DataFrame</h2>
+            <div class="slide-content">
+                <p>To remove columns from a DataFrame, use the <code>drop()</code> method with the <code>columns</code> parameter.</p>
+                
+                <h3>Syntax</h3>
+                <div class="code-block"><span class="comment"># Basic syntax for removing columns</span>
+df.drop(columns=["column_name"], inplace=True)</div>
+                
+                <p>The <code>inplace=True</code> parameter modifies the DataFrame directly without creating a copy.</p>
+                
+                <h3>Example</h3>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', 'fighting', 'relation', 'sckills'],
+    "salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Removing a single column</span>
+df.drop(columns=["department"], inplace=True)
+print("DataFrame after removing department column:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    name  department  salary<br>
+                    0        Ram        tech   80000<br>
+                    1      shyam   technical   70000<br>
+                    2   lakshman  technologya   40000<br>
+                    3     sheeta    fighting   30000<br>
+                    4     bharat    relation   49000<br>
+                    5  shatrughan     sckills   91000<br><br>
+                    
+                    DataFrame after removing department column:<br>
+                    name  salary<br>
+                    0        Ram   80000<br>
+                    1      shyam   70000<br>
+                    2   lakshman   40000<br>
+                    3     sheeta   30000<br>
+                    4     bharat   49000<br>
+                    5  shatrughan   91000
+                </div>
+                
+                <h3>Removing Multiple Columns</h3>
+                <p>To remove multiple columns, pass a list of column names to the <code>columns</code> parameter.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', 'fighting', 'relation', 'sckills'],
+    "salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Removing multiple columns</span>
+df.drop(columns=["department", "salary"], inplace=True)
+print("DataFrame after removing department and salary columns:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    name  department  salary<br>
+                    0        Ram        tech   80000<br>
+                    1      shyam   technical   70000<br>
+                    2   lakshman  technologya   40000<br>
+                    3     sheeta    fighting   30000<br>
+                    4     bharat    relation   49000<br>
+                    5  shatrughan     sckills   91000<br><br>
+                    
+                    DataFrame after removing department and salary columns:<br>
+                    name<br>
+                    0        Ram<br>
+                    1      shyam<br>
+                    2   lakshman<br>
+                    3     sheeta<br>
+                    4     bharat<br>
+                    5  shatrughan
+                </div>
+                
+                <div class="tip">
+                    <strong>Tip:</strong> If you don't use <code>inplace=True</code>, the <code>drop()</code> method returns a new DataFrame with the specified columns removed, leaving the original DataFrame unchanged.
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-button" onclick="showSlide('updating-values')">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="nav-button" onclick="showSlide('missing-values')">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Missing Values Slide -->
+        <div id="missing-values" class="slide-container">
+            <h2 class="slide-title"><i class="fas fa-question-circle"></i> Handling Missing Values in Pandas</h2>
+            <div class="slide-content">
+                <p>Missing values are common in real-world datasets. Pandas provides several methods to detect and handle them.</p>
+                
+                <h3>1. Detecting Missing Values</h3>
+                <p>Use <code>isnull().sum()</code> to count the number of missing values in each column.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame with missing values</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', None, 'sheeta', None, 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', None, 'relation', 'sckills'],
+    "salary": [80000, 70000, None, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("DataFrame with missing values:")
+print(df)
+print("\n")
+
+<span class="comment"># Detecting missing values</span>
+print("Number of missing values in each column:")
+print(df.isnull().sum())</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    DataFrame with missing values:<br>
+                    name  department   salary<br>
+                    0        Ram        tech  80000.0<br>
+                    1      shyam   technical  70000.0<br>
+                    2       None  technologya      NaN<br>
+                    3     sheeta        None  30000.0<br>
+                    4       None    relation  49000.0<br>
+                    5  shatrughan     sckills  91000.0<br><br>
+                    
+                    Number of missing values in each column:<br>
+                    name          2<br>
+                    department    1<br>
+                    salary        1<br>
+                    dtype: int64
+                </div>
+                
+                <h3>2. Handling Missing Values</h3>
+                
+                <h4>2.1 Removing Missing Values</h4>
+                <p>Use <code>dropna()</code> to remove rows or columns with missing values.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame with missing values</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', None, 'sheeta', None, 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', None, 'relation', 'sckills'],
+    "salary": [80000, 70000, None, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Removing rows with missing values</span>
+df.dropna(inplace=True)
+print("DataFrame after removing rows with missing values:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    name  department   salary<br>
+                    0        Ram        tech  80000.0<br>
+                    1      shyam   technical  70000.0<br>
+                    2       None  technologya      NaN<br>
+                    3     sheeta        None  30000.0<br>
+                    4       None    relation  49000.0<br>
+                    5  shatrughan     sckills  91000.0<br><br>
+                    
+                    DataFrame after removing rows with missing values:<br>
+                    name  department  salary<br>
+                    0        Ram        tech  80000.0<br>
+                    1      shyam   technical  70000.0<br>
+                    5  shatrughan     sckills  91000.0
+                </div>
+                
+                <h4>2.2 Filling Missing Values</h4>
+                <p>Use <code>fillna()</code> to replace missing values with a specific value.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame with missing values</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', None, 'sheeta', None, 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', None, 'relation', 'sckills'],
+    "salary": [80000, 70000, None, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Filling missing values with 0</span>
+df.fillna(0, inplace=True)
+print("DataFrame after filling missing values with 0:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    name  department   salary<br>
+                    0        Ram        tech  80000.0<br>
+                    1      shyam   technical  70000.0<br>
+                    2       None  technologya      NaN<br>
+                    3     sheeta        None  30000.0<br>
+                    4       None    relation  49000.0<br>
+                    5  shatrughan     sckills  91000.0<br><br>
+                    
+                    DataFrame after filling missing values with 0:<br>
+                    name  department  salary<br>
+                    0        Ram        tech  80000.0<br>
+                    1      shyam   technical  70000.0<br>
+                    2          0  technologya      0.0<br>
+                    3     sheeta           0  30000.0<br>
+                    4          0    relation  49000.0<br>
+                    5  shatrughan     sckills  91000.0
+                </div>
+                
+                <h4>2.3 Filling with Mean Value</h4>
+                <p>Replace missing values with the mean of the column.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame with missing values</span>
+import pandas as pd
+data = {
+    "name": ['Ram', 'shyam', None, 'sheeta', None, 'shatrughan'],
+    "department": ['tech', 'technical', 'technologya', None, 'relation', 'sckills'],
+    "salary": [80000, 70000, None, 30000, None, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Filling missing salary values with mean</span>
+mean_salary = df['salary'].mean()
+print("Mean salary:", mean_salary)
+df['salary'].fillna(df['salary'].mean(), inplace=True)
+print("\nDataFrame after filling missing salary values with mean:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    name  department   salary<br>
+                    0        Ram        tech  80000.0<br>
+                    1      shyam   technical  70000.0<br>
+                    2       None  technologya      NaN<br>
+                    3     sheeta        None  30000.0<br>
+                    4       None    relation      NaN<br>
+                    5  shatrughan     sckills  91000.0<br><br>
+                    
+                    Mean salary: 67500.0<br><br>
+                    
+                    DataFrame after filling missing salary values with mean:<br>
+                    name  department   salary<br>
+                    0        Ram        tech  80000.0<br>
+                    1      shyam   technical  70000.0<br>
+                    2       None  technologya  67500.0<br>
+                    3     sheeta        None  30000.0<br>
+                    4       None    relation  67500.0<br>
+                    5  shatrughan     sckills  91000.0
+                </div>
+                
+                <h3>3. Interpolation Method</h3>
+                <p>Use <code>interpolate()</code> to fill missing values with realistic values that follow a pattern.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame with missing values</span>
+import pandas as pd
+data = {
+    "Time": [1, 2, 3, 4, 5, 6],
+    "value": [10, 20, None, 40, None, 60]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Applying linear interpolation</span>
+df['value'] = df['value'].interpolate(method='linear')
+print("DataFrame after interpolation:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    Time  value<br>
+                    0     1   10.0<br>
+                    1     2   20.0<br>
+                    2     3    NaN<br>
+                    3     4   40.0<br>
+                    4     5    NaN<br>
+                    5     6   60.0<br><br>
+                    
+                    DataFrame after interpolation:<br>
+                    Time  value<br>
+                    0     1   10.0<br>
+                    1     2   20.0<br>
+                    2     3   30.0<br>
+                    3     4   40.0<br>
+                    4     5   50.0<br>
+                    5     6   60.0
+                </div>
+                
+                <div class="tip">
+                    <strong>Tip:</strong> Interpolation is particularly useful for time series data where values follow a trend or pattern.
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-button" onclick="showSlide('removing-columns')">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="nav-button" onclick="showSlide('sorting-aggregation')">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Sorting and Aggregation Slide -->
+        <div id="sorting-aggregation" class="slide-container">
+            <h2 class="slide-title"><i class="fas fa-sort"></i> Sorting and Aggregation</h2>
+            <div class="slide-content">
+                <p>Sorting and aggregation are essential operations for organizing and summarizing data in Pandas.</p>
+                
+                <h3>1. Sorting Data</h3>
+                <p>Use <code>sort_values()</code> to sort data by one or more columns.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "Name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "Age": [23, 45, 34, 25, 36, 29],
+    "Salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Sorting by Age in ascending order</span>
+df.sort_values(by="Age", ascending=True, inplace=True)
+print("DataFrame sorted by Age (ascending):")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    Name  Age  Salary<br>
+                    0        Ram   23   80000<br>
+                    1      shyam   45   70000<br>
+                    2   lakshman   34   40000<br>
+                    3     sheeta   25   30000<br>
+                    4     bharat   36   49000<br>
+                    5  shatrughan   29   91000<br><br>
+                    
+                    DataFrame sorted by Age (ascending):<br>
+                    Name  Age  Salary<br>
+                    0        Ram   23   80000<br>
+                    3     sheeta   25   30000<br>
+                    5  shatrughan   29   91000<br>
+                    2   lakshman   34   40000<br>
+                    4     bharat   36   49000<br>
+                    1      shyam   45   70000
+                </div>
+                
+                <h3>2. Sorting by Multiple Columns</h3>
+                <p>You can sort by multiple columns by passing a list of column names and a list of sort orders.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "Name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "Age": [23, 45, 34, 25, 36, 29],
+    "Salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Sorting by Age (ascending) and Salary (descending)</span>
+df.sort_values(by=["Age", "Salary"], ascending=[True, False], inplace=True)
+print("DataFrame sorted by Age (ascending) and Salary (descending):")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    Name  Age  Salary<br>
+                    0        Ram   23   80000<br>
+                    1      shyam   45   70000<br>
+                    2   lakshman   34   40000<br>
+                    3     sheeta   25   30000<br>
+                    4     bharat   36   49000<br>
+                    5  shatrughan   29   91000<br><br>
+                    
+                    DataFrame sorted by Age (ascending) and Salary (descending):<br>
+                    Name  Age  Salary<br>
+                    0        Ram   23   80000<br>
+                    3     sheeta   25   30000<br>
+                    5  shatrughan   29   91000<br>
+                    2   lakshman   34   40000<br>
+                    4     bharat   36   49000<br>
+                    1      shyam   45   70000
+                </div>
+                
+                <h3>3. Aggregation Functions</h3>
+                <p>Pandas provides various aggregation functions to summarize data:</p>
+                <ul>
+                    <li><code>sum()</code>: Sum of values</li>
+                    <li><code>mean()</code>: Arithmetic mean</li>
+                    <li><code>median()</code>: Median (50th percentile)</li>
+                    <li><code>min()</code>: Minimum value</li>
+                    <li><code>max()</code>: Maximum value</li>
+                    <li><code>count()</code>: Number of non-NA values</li>
+                    <li><code>std()</code>: Standard deviation</li>
+                    <li><code>var()</code>: Variance</li>
+                </ul>
+                
+                <h3>Example: Using Aggregation</h3>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "Name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "Age": [23, 45, 34, 25, 36, 29],
+    "Salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Calculating average age</span>
+avg_age = df['Age'].mean()
+print("Average age:", avg_age)
+print("\n")
+
+<span class="comment"># Adding a column to indicate if age is above average</span>
+df['Age_above_avg'] = df['Age'] > avg_age
+print("DataFrame with Age_above_avg column:")
+print(df)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    Name  Age  Salary<br>
+                    0        Ram   23   80000<br>
+                    1      shyam   45   70000<br>
+                    2   lakshman   34   40000<br>
+                    3     sheeta   25   30000<br>
+                    4     bharat   36   49000<br>
+                    5  shatrughan   29   91000<br><br>
+                    
+                    Average age: 32.0<br><br>
+                    
+                    DataFrame with Age_above_avg column:<br>
+                    Name  Age  Salary  Age_above_avg<br>
+                    0        Ram   23   80000          False<br>
+                    1      shyam   45   70000           True<br>
+                    2   lakshman   34   40000           True<br>
+                    3     sheeta   25   30000          False<br>
+                    4     bharat   36   49000           True<br>
+                    5  shatrughan   29   91000          False
+                </div>
+                
+                <div class="tip">
+                    <strong>Tip:</strong> Aggregation functions ignore NaN values by default. Use <code>skipna=False</code> to include them in calculations.
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-button" onclick="showSlide('missing-values')">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="nav-button" onclick="showSlide('grouping')">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Grouping Slide -->
+        <div id="grouping" class="slide-container">
+            <h2 class="slide-title"><i class="fas fa-object-group"></i> Grouping Data</h2>
+            <div class="slide-content">
+                <p>Grouping is a powerful technique in Pandas that allows you to split data into groups and perform operations on each group.</p>
+                
+                <h3>Grouping by a Single Column</h3>
+                <p>Use <code>groupby()</code> followed by an aggregation function to group data by a single column.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "Name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "Age": [25, 45, 34, 25, 36, 34],
+    "Salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Grouping by Age and calculating sum of Salary</span>
+grouped = df.groupby("Age")["Salary"].sum()
+print("Grouped data (sum of salary by age):")
+print(grouped)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    Name  Age  Salary<br>
+                    0        Ram   25   80000<br>
+                    1      shyam   45   70000<br>
+                    2   lakshman   34   40000<br>
+                    3     sheeta   25   30000<br>
+                    4     bharat   36   49000<br>
+                    5  shatrughan   34   91000<br><br>
+                    
+                    Grouped data (sum of salary by age):<br>
+                    Age<br>
+                    25    110000<br>
+                    34    131000<br>
+                    36     49000<br>
+                    45     70000<br>
+                    Name: Salary, dtype: int64
+                </div>
+                
+                <h3>Grouping by Multiple Columns</h3>
+                <p>You can group by multiple columns by passing a list of column names to <code>groupby()</code>.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "Name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "Age": [25, 45, 34, 25, 36, 34],
+    "Salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Grouping by Age and Name and calculating sum of Salary</span>
+grouped = df.groupby(["Age", "Name"])["Salary"].sum()
+print("Grouped data (sum of salary by age and name):")
+print(grouped)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    Name  Age  Salary<br>
+                    0        Ram   25   80000<br>
+                    1      shyam   45   70000<br>
+                    2   lakshman   34   40000<br>
+                    3     sheeta   25   30000<br>
+                    4     bharat   36   49000<br>
+                    5  shatrughan   34   91000<br><br>
+                    
+                    Grouped data (sum of salary by age and name):<br>
+                    Age  Name<br>
+                    25   Ram        80000<br>
+                    sheeta      30000<br>
+                    34   lakshman   40000<br>
+                    shatrughan  91000<br>
+                    36   bharat     49000<br>
+                    45   shyam      70000<br>
+                    Name: Salary, dtype: int64
+                </div>
+                
+                <h3>Applying Multiple Aggregations</h3>
+                <p>Use <code>agg()</code> to apply multiple aggregation functions to grouped data.</p>
+                <div class="code-block"><span class="comment"># Creating a DataFrame</span>
+import pandas as pd
+data = {
+    "Name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "Age": [25, 45, 34, 25, 36, 34],
+    "Salary": [80000, 70000, 40000, 30000, 49000, 91000]
+}
+df = pd.DataFrame(data)
+print("Original DataFrame:")
+print(df)
+print("\n")
+
+<span class="comment"># Grouping by Age and applying multiple aggregations</span>
+grouped = df.groupby("Age")["Salary"].agg(['mean', 'sum', 'count'])
+print("Grouped data with multiple aggregations:")
+print(grouped)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Original DataFrame:<br>
+                    Name  Age  Salary<br>
+                    0        Ram   25   80000<br>
+                    1      shyam   45   70000<br>
+                    2   lakshman   34   40000<br>
+                    3     sheeta   25   30000<br>
+                    4     bharat   36   49000<br>
+                    5  shatrughan   34   91000<br><br>
+                    
+                    Grouped data with multiple aggregations:<br>
+                    mean     sum  count<br>
+                    Age<br>
+                    25   55000  110000      2<br>
+                    34   65500  131000      2<br>
+                    36   49000   49000      1<br>
+                    45   70000   70000      1
+                </div>
+                
+                <div class="tip">
+                    <strong>Tip:</strong> Grouping is particularly useful for analyzing data across different categories and identifying patterns or trends within those categories.
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-button" onclick="showSlide('sorting-aggregation')">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="nav-button" onclick="showSlide('merging-joining')">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Merging and Joining Slide -->
+        <div id="merging-joining" class="slide-container">
+            <h2 class="slide-title"><i class="fas fa-code-branch"></i> Merging and Joining DataFrames</h2>
+            <div class="slide-content">
+                <p>Merging and joining are operations that combine DataFrames based on common columns or indices.</p>
+                
+                <h3>Syntax</h3>
+                <div class="code-block"><span class="comment"># Basic syntax for merging DataFrames</span>
+pd.merge(df1, df2, on="column_name", how="join_type")</div>
+                
+                <p>Parameters:</p>
+                <ul>
+                    <li><code>df1, df2</code>: DataFrames to merge</li>
+                    <li><code>on</code>: Column name to join on</li>
+                    <li><code>how</code>: Type of join ('inner', 'outer', 'left', 'right')</li>
+                </ul>
+                
+                <h3>Types of Joins</h3>
+                <ul>
+                    <li><strong>Inner Join</strong>: Returns only rows where key values exist in both DataFrames</li>
+                    <li><strong>Outer Join</strong>: Returns all rows from both DataFrames, filling missing matches with NaN</li>
+                    <li><strong>Left Join</strong>: Returns all rows from the left DataFrame, and matching rows from the right</li>
+                    <li><strong>Right Join</strong>: Returns all rows from the right DataFrame, and matching rows from the left</li>
+                </ul>
+                
+                <h3>Example</h3>
+                <div class="code-block"><span class="comment"># Creating two DataFrames</span>
+import pandas as pd
+Customer_data = {
+    "Name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "customer_id": [1, 2, 3, 4, 5, 6]
+}
+df1 = pd.DataFrame(Customer_data)
+
+Order_data = {
+    "price": [500, 700, 400, 300, 490, 910],
+    "customer_id": [1, 2, 3, 4, 5, 8]
+}
+df2 = pd.DataFrame(Order_data)
+
+print("Customer DataFrame:")
+print(df1)
+print("\nOrder DataFrame:")
+print(df2)
+print("\n")
+
+<span class="comment"># Inner join</span>
+print("Inner Join:")
+merged_data = pd.merge(df1, df2, on="customer_id", how="inner")
+print(merged_data)
+print("\n")
+
+<span class="comment"># Outer join</span>
+print("Outer Join:")
+merged_data = pd.merge(df1, df2, on="customer_id", how="outer")
+print(merged_data)
+print("\n")
+
+<span class="comment"># Left join</span>
+print("Left Join:")
+merged_data = pd.merge(df1, df2, on="customer_id", how="left")
+print(merged_data)
+print("\n")
+
+<span class="comment"># Right join</span>
+print("Right Join:")
+merged_data = pd.merge(df1, df2, on="customer_id", how="right")
+print(merged_data)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    Customer DataFrame:<br>
+                    Name  customer_id<br>
+                    0        Ram            1<br>
+                    1      shyam            2<br>
+                    2   lakshman            3<br>
+                    3     sheeta            4<br>
+                    4     bharat            5<br>
+                    5  shatrughan            6<br><br>
+                    
+                    Order DataFrame:<br>
+                    price  customer_id<br>
+                    0    500            1<br>
+                    1    700            2<br>
+                    2    400            3<br>
+                    3    300            4<br>
+                    4    490            5<br>
+                    5    910            8<br><br>
+                    
+                    Inner Join:<br>
+                    Name  customer_id  price<br>
+                    0        Ram            1    500<br>
+                    1      shyam            2    700<br>
+                    2   lakshman            3    400<br>
+                    3     sheeta            4    300<br>
+                    4     bharat            5    490<br><br>
+                    
+                    Outer Join:<br>
+                    Name  customer_id  price<br>
+                    0        Ram            1  500.0<br>
+                    1      shyam            2  700.0<br>
+                    2   lakshman            3  400.0<br>
+                    3     sheeta            4  300.0<br>
+                    4     bharat            5  490.0<br>
+                    5  shatrughan            6    NaN<br>
+                    6        None            8  910.0<br><br>
+                    
+                    Left Join:<br>
+                    Name  customer_id  price<br>
+                    0        Ram            1  500.0<br>
+                    1      shyam            2  700.0<br>
+                    2   lakshman            3  400.0<br>
+                    3     sheeta            4  300.0<br>
+                    4     bharat            5  490.0<br>
+                    5  shatrughan            6    NaN<br><br>
+                    
+                    Right Join:<br>
+                    Name  customer_id  price<br>
+                    0        Ram            1    500<br>
+                    1      shyam            2    700<br>
+                    2   lakshman            3    400<br>
+                    3     sheeta            4    300<br>
+                    4     bharat            5    490<br>
+                    5        None            8    910
+                </div>
+                
+                <div class="note">
+                    <strong>Note:</strong> The choice of join type depends on your specific use case and how you want to handle non-matching keys between the DataFrames.
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-button" onclick="showSlide('grouping')">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="nav-button" onclick="showSlide('concatenation')">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Concatenation Slide -->
+        <div id="concatenation" class="slide-container">
+            <h2 class="slide-title"><i class="fas fa-link"></i> Concatenating DataFrames</h2>
+            <div class="slide-content">
+                <p>Concatenation is the process of joining DataFrames either vertically (row-wise) or horizontally (column-wise).</p>
+                
+                <h3>Syntax</h3>
+                <div class="code-block"><span class="comment"># Basic syntax for concatenating DataFrames</span>
+pd.concat([df1, df2], axis=0/1, ignore_index=True)</div>
+                
+                <p>Parameters:</p>
+                <ul>
+                    <li><code>[df1, df2]</code>: List of DataFrames to concatenate</li>
+                    <li><code>axis=0</code>: Concatenate vertically (row-wise)</li>
+                    <li><code>axis=1</code>: Concatenate horizontally (column-wise)</li>
+                    <li><code>ignore_index=True</code>: Reset the index of the resulting DataFrame</li>
+                </ul>
+                
+                <h3>Row-wise Concatenation (axis=0)</h3>
+                <div class="code-block"><span class="comment"># Creating two DataFrames</span>
+import pandas as pd
+data1 = pd.DataFrame({
+    "Name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "Age": [23, 45, 34, 25, 36, 29]
+})
+
+data2 = pd.DataFrame({
+    "Name": ['Krishna', 'Arjun', 'Bheem'],
+    "Age": [30, 35, 40]
+})
+
+print("DataFrame 1:")
+print(data1)
+print("\nDataFrame 2:")
+print(data2)
+print("\n")
+
+<span class="comment"># Row-wise concatenation</span>
+result = pd.concat([data1, data2], axis=0, ignore_index=True)
+print("Row-wise concatenated DataFrame:")
+print(result)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    DataFrame 1:<br>
+                    Name  Age<br>
+                    0        Ram   23<br>
+                    1      shyam   45<br>
+                    2   lakshman   34<br>
+                    3     sheeta   25<br>
+                    4     bharat   36<br>
+                    5  shatrughan   29<br><br>
+                    
+                    DataFrame 2:<br>
+                    Name  Age<br>
+                    0  Krishna   30<br>
+                    1    Arjun   35<br>
+                    2    Bheem   40<br><br>
+                    
+                    Row-wise concatenated DataFrame:<br>
+                    Name  Age<br>
+                    0        Ram   23<br>
+                    1      shyam   45<br>
+                    2   lakshman   34<br>
+                    3     sheeta   25<br>
+                    4     bharat   36<br>
+                    5  shatrughan   29<br>
+                    6    Krishna   30<br>
+                    7      Arjun   35<br>
+                    8      Bheem   40
+                </div>
+                
+                <h3>Column-wise Concatenation (axis=1)</h3>
+                <div class="code-block"><span class="comment"># Creating two DataFrames</span>
+import pandas as pd
+data1 = pd.DataFrame({
+    "Name": ['Ram', 'shyam', 'lakshman', 'sheeta', 'bharat', 'shatrughan'],
+    "Age": [23, 45, 34, 25, 36, 29]
+})
+
+data2 = pd.DataFrame({
+    "Salary": [80000, 70000, 40000, 30000, 49000, 91000],
+    "Department": ['tech', 'technical', 'technologya', 'fighting', 'relation', 'sckills']
+})
+
+print("DataFrame 1:")
+print(data1)
+print("\nDataFrame 2:")
+print(data2)
+print("\n")
+
+<span class="comment"># Column-wise concatenation</span>
+result = pd.concat([data1, data2], axis=1)
+print("Column-wise concatenated DataFrame:")
+print(result)</div>
+                
+                <div class="output-block">
+                    <div class="output-label">Output:</div>
+                    DataFrame 1:<br>
+                    Name  Age<br>
+                    0        Ram   23<br>
+                    1      shyam   45<br>
+                    2   lakshman   34<br>
+                    3     sheeta   25<br>
+                    4     bharat   36<br>
+                    5  shatrughan   29<br><br>
+                    
+                    DataFrame 2:<br>
+                    Salary  Department<br>
+                    0   80000        tech<br>
+                    1   70000   technical<br>
+                    2   40000  technologya<br>
+                    3   30000    fighting<br>
+                    4   49000    relation<br>
+                    5   91000     sckills<br><br>
+                    
+                    Column-wise concatenated DataFrame:<br>
+                    Name  Age  Salary  Department<br>
+                    0        Ram   23   80000        tech<br>
+                    1      shyam   45   70000   technical<br>
+                    2   lakshman   34   40000  technologya<br>
+                    3     sheeta   25   30000    fighting<br>
+                    4     bharat   36   49000    relation<br>
+                    5  shatrughan   29   91000     sckills
+                </div>
+                
+                <div class="tip">
+                    <strong>Tip:</strong> When concatenating DataFrames with different columns, missing values will be filled with NaN.
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button class="nav-button" onclick="showSlide('merging-joining')">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="nav-button" onclick="showSlide('index')">
+                    <i class="fas fa-home"></i> Index
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Navigation -->
+    <div class="floating-nav">
+        <button onclick="showSlide('index')" title="Go to Index">
+            <i class="fas fa-home"></i>
+        </button>
+        <button onclick="previousSlide()" title="Previous Slide">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <button onclick="nextSlide()" title="Next Slide">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+    
+    <script>
+        // Get all slides
+        const slides = document.querySelectorAll('.slide-container');
+        const slideIds = Array.from(slides).map(slide => slide.id);
+        let currentSlideIndex = 0;
+        
+        // Function to show a specific slide
+        function showSlide(slideId) {
+            // Hide all slides
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // Show the selected slide
+            const selectedSlide = document.getElementById(slideId);
+            if (selectedSlide) {
+                selectedSlide.classList.add('active');
+                currentSlideIndex = slideIds.indexOf(slideId);
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Function to go to the next slide
+        function nextSlide() {
+            if (currentSlideIndex < slideIds.length - 1) {
+                showSlide(slideIds[currentSlideIndex + 1]);
+            }
+        }
+        
+        // Function to go to the previous slide
+        function previousSlide() {
+            if (currentSlideIndex > 0) {
+                showSlide(slideIds[currentSlideIndex - 1]);
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                previousSlide();
+            } else if (event.key === 'Home') {
+                showSlide('index');
+            }
+        });
+        
+        // Background image upload functionality
+        document.getElementById('bg-image-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    const imageUrl = event.target.result;
+                    document.body.style.setProperty('--bg-image', `url(${imageUrl})`);
+                    
+                    // Update the background image
+                    const beforeElement = document.querySelector('body::before');
+                    if (beforeElement) {
+                        beforeElement.style.backgroundImage = `url(${imageUrl})`;
+                    } else {
+                        // If the pseudo-element doesn't exist, create a style element
+                        const style = document.createElement('style');
+                        style.innerHTML = `
+                            body::before {
+                                content: "";
+                                position: fixed;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                background-image: url(${imageUrl});
+                                background-size: cover;
+                                background-position: center;
+                                background-attachment: fixed;
+                                background-repeat: no-repeat;
+                                opacity: 0.85;
+                                z-index: -1;
+                            }
+                        `;
+                        document.head.appendChild(style);
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+</body>
+</html>
